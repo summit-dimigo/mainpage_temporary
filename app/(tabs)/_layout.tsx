@@ -25,8 +25,8 @@ export default function TabLayout() {
                 tabBarIcon: ({ focused }) => (
                     <Image source={
                         focused
-                        ? require("@/assets/main_page_tp.png")
-                        : require("@/assets/main_page_white.png")
+                        ? require("@/assets/images/main_page_white.png")
+                        : require("@/assets/images/main_page_tp.png")
                     } style={{width: 24, height: 24}} 
                     />
                 )  
@@ -39,8 +39,8 @@ export default function TabLayout() {
                 tabBarIcon: ({ focused }) => (
                     <Image source={
                         focused
-                        ? require("@/assets/savings_tp.png")
-                        : require("@/assets/savings_white.png")    
+                        ? require("@/assets/images/savings_white.png")
+                        : require("@/assets/images/savings_tp.png")    
                     } style={{width: 24, height: 24}}
                     />
                 )    
@@ -53,8 +53,8 @@ export default function TabLayout() {
                 tabBarIcon: ({ focused }) => (
                     <Image source={
                         focused
-                        ? require("@/assets/explore_tp.png")
-                        : require("@/assets/explore_white.png")
+                        ? require("@/assets/images/explore_white.png")
+                        : require("@/assets/images/explore_tp.png")
                     } 
                     style={{width: 24, height: 24}}
                     />
@@ -68,8 +68,8 @@ export default function TabLayout() {
                 tabBarIcon: ({ focused }) => (
                     <Image source={
                         focused
-                        ? require("@/assets/images/sports_esports_tp.png")
-                        : require("@/assets/images/sports_esports_white.png")
+                        ? require("@/assets/images/sports_esports_white.png")
+                        : require("@/assets/images/sports_esports_tp.png")
                     } 
                     style={{width: 24, height: 24}}/>
                 )    
@@ -82,8 +82,8 @@ export default function TabLayout() {
                 tabBarIcon: ({ focused }) => (
                     <Image source={
                         focused
-                        ? require("@/assets/images/award_star_tp.png")
-                        : require("@/assets/images/award_star_white.png")
+                        ? require("@/assets/images/award_star_white.png")
+                        : require("@/assets/images/award_star_tp.png")
                     } style={{width: 24, height: 24}}/>
                 )    
             }} 
