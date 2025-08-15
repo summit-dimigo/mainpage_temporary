@@ -1,3 +1,6 @@
 {
-  "urlRandomness": "oEzMfy0"
+  "urlRandomness": "oEzMfy0",
+  "javascript.validate.enable": false,
+"typescript.validate.enable": false,
+"editor.defaultFormatter": "esbenp.prettier-vscode"
 }

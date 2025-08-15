@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-export default (props) => {
+export default function Order() {
   const [textInput1, onChangeTextInput1] = useState('');
 	return (
 		<SafeAreaView style={styles.container}>
