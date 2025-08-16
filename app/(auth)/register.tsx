@@ -1,70 +1,70 @@
 import { useAuth } from "@/contexts/authContext";
 import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
-	Alert,
-	Image,
-	SafeAreaView,
-	ScrollView,
-	StyleSheet,
-	Text,
-	TextInput,
-	TouchableOpacity,
-	View
+  Alert,
+  Image,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 // TypeScript 타입 정의 추가
-interface LoginProps {}
+interface RegisterProps {}
 
-const Login: React.FC<LoginProps> = (props) => {
-    const { login, user, isLoading } = useAuth();
-    const route = useRouter();
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [loginLoading, setLoginLoading] = useState(false);
+const Register: React.FC<RegisterProps> = (props) => {
+  const { register } = useAuth();
+  const emailRef = useRef("")
+  const passwordRef = useRef("")
+  const nameRef = useRef("")
+  const [isLoading, setIsLoading] = useState(false);
+  const route = useRouter();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-    // 이미 로그인된 사용자는 메인으로 리다이렉트
-    useEffect(() => {
-      if (!isLoading && user) {
-        console.log('User already logged in, redirecting...');
-        route.replace("/(tabs)");
-      }
-    }, [user, isLoading]);
-
-    // Firebase Auth가 로딩 중일 때
-    if (isLoading) {
-      return (
-        <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-          <Text style={{ color: '#FFFFFF' }}>로딩 중...</Text>
-        </SafeAreaView>
-      );
+  const handleRegister = async () => {
+    if (!name || !email || !password) {
+      Alert.alert("오류", "모든 필드를 입력해주세요.");
+      return;
     }
 
-    const handleLogin = async () => {
-      if (!email || !password) {
-        Alert.alert("오류", "이메일과 비밀번호를 입력해주세요.");
-        return;
-      }
+    if (password.length < 6) {
+      Alert.alert("오류", "비밀번호는 최소 6자리 이상이어야 합니다.");
+      return;
+    }
 
-      setLoginLoading(true);
-      try {
-        const response = await login(email, password);
-        if (response?.success) {
-          console.log('Login successful, Auth state will handle redirect...');
-          // 로그인 성공 후 잠시 기다린 후 수동 리다이렉트
-          setTimeout(() => {
-            console.log('🔄 Performing manual redirect to tabs...');
-            route.replace("/(tabs)");
-          }, 1000);
-        } else {
-          Alert.alert("오류", response?.msg || "로그인에 실패했습니다.");
-        }
-      } catch (error) {
-        console.error('Login error in component:', error);
-        Alert.alert("오류", "로그인 중 문제가 발생했습니다.");
-      } finally {
-        setLoginLoading(false);
+    setIsLoading(true);
+    
+    // 30초 타임아웃 설정
+    const timeoutId = setTimeout(() => {
+      setIsLoading(false);
+      Alert.alert("오류", "요청 시간이 초과되었습니다. 네트워크 연결을 확인해주세요.");
+    }, 30000);
+
+    try {
+      console.log('Attempting to register with:', { name, email });
+      const response = await register(email, password, name);
+      clearTimeout(timeoutId); // 성공 시 타임아웃 클리어
+      
+      if (response?.success) {
+        Alert.alert("성공", "회원가입이 완료되었습니다!", [
+          { text: "확인", onPress: () => route.push("./login") }
+        ]);
+      } else {
+        Alert.alert("오류", response?.msg || "회원가입에 실패했습니다.");
       }
-    };
+    } catch (error: any) {
+      clearTimeout(timeoutId); // 에러 시 타임아웃 클리어
+      console.error('Registration catch error:', error);
+      Alert.alert("오류", "회원가입 중 문제가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -78,7 +78,18 @@ const Login: React.FC<LoginProps> = (props) => {
         </View>
 
         <View style={styles.view2}>
-          <Text style={styles.text}>로그인</Text>
+          <Text style={styles.text}>회원가입</Text>
+        </View>
+
+        <View style={styles.view3}>
+          <TextInput
+            placeholder="이름"
+            placeholderTextColor="#8B8B91"
+            value={name}
+            onChangeText={setName}
+            style={styles.input}
+            autoCapitalize="none"
+          />
         </View>
 
         <View style={styles.view3}>
@@ -95,7 +106,7 @@ const Login: React.FC<LoginProps> = (props) => {
 
         <View style={styles.view4}>
           <TextInput
-            placeholder="비밀번호"
+            placeholder="비밀번호 (최소 6자리)"
             placeholderTextColor="#8B8B91"
             value={password}
             onChangeText={setPassword}
@@ -105,29 +116,29 @@ const Login: React.FC<LoginProps> = (props) => {
         </View>
 
         <View style={styles.view5}>
-          <TouchableOpacity onPress={() => route.push("./register")}>
-            <Text style={styles.text2}>계정이 없으신가요? 회원가입</Text>
+          <TouchableOpacity onPress={() => route.push("./login")}>
+            <Text style={styles.text2}>이미 계정이 있으신가요? 로그인</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.view6}>
           <TouchableOpacity 
-            style={[styles.button, { opacity: loginLoading ? 0.6 : 1 }]} 
-            onPress={handleLogin}
-            disabled={loginLoading}
+            style={[styles.button, { opacity: isLoading ? 0.6 : 1 }]} 
+            onPress={handleRegister}
+            disabled={isLoading}
           >
-            <Text style={styles.text3}>{loginLoading ? "로그인 중..." : "로그인"}</Text>
+            <Text style={styles.text3}>{isLoading ? "가입 중..." : "회원가입"}</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.view7}>
-          <TouchableOpacity style={styles.row} disabled={loginLoading}>
+          <TouchableOpacity style={styles.row} disabled={isLoading}>
             <Image
               source={{ uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/ysly0qmd_expires_30_days.png" }} 
               resizeMode="stretch"
               style={styles.image2}
             />
-            <Text style={styles.googleText}>구글로 로그인하기</Text>
+            <Text style={styles.googleText}>구글로 가입하기</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -234,4 +245,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Login;
+export default Register;

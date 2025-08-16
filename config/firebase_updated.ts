@@ -1,4 +1,3 @@
-import { logger } from "@/utils/logger";
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
@@ -19,9 +18,9 @@ const app = initializeApp(firebaseConfig);
 // Initialize Firebase Authentication
 const auth = getAuth(app);
 
-// Initialize Firestore with optimized settings
+// Initialize Firestore
 const db = getFirestore(app);
 
-logger.firebase('Firebase 인증 및 Firestore 설정 완료');
+console.log('🔥 Firebase 인증 및 Firestore 설정 완료');
 
 export { auth, db };

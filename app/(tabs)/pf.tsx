@@ -1,28 +1,37 @@
-import { useRouter } from "expo-router";
-import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-export default function Profile() {
-	const route = useRouter();
+import { useAuth } from "@/contexts/authContext";
+import React, { useState } from "react";
+import { Image, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
+export default function Pf() {
+    const { user, logout, isLoading, refreshUserData } = useAuth();
+    const [refreshing, setRefreshing] = useState(false);
 	return (
 		<SafeAreaView style={styles.container}>
-			<ScrollView  style={styles.scrollView}>
+			<ScrollView  style={styles.scrollView} refreshControl={
+                  <RefreshControl
+                        refreshing={isLoading}
+                        onRefresh={refreshUserData}
+                        tintColor="#FFFFFF" // iOS에서 새로고침 인디케이터 색상
+                        colors={["#FFFFFF"]} // Android에서 새로고침 인디케이터 색상
+                    />
+                }>
 				<View style={styles.row}>
 					<Image
-						source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/n5ih390y_expires_30_days.png"}} 
+						source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/wrjtel2q_expires_30_days.png"}} 
 						resizeMode = {"stretch"}
 						style={styles.image}
 					/>
 					<View >
 						<Text style={styles.text}>
-							{"황인성"}
+							{user?.name ? user.name : "이름 없음"}
 						</Text>
 						<Text style={styles.text2}>
-							{"Lv.2 초보 투자자"}
+							{user?.profile ? "Lv. "+user.profile.level : "정보 없음"}
 						</Text>
 					</View>
 					<View style={styles.box}>
 					</View>
 					<Image
-						source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/3og6v4j9_expires_30_days.png"}} 
+						source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/58t9wa6n_expires_30_days.png"}} 
 						resizeMode = {"stretch"}
 						style={styles.image2}
 					/>
@@ -32,10 +41,19 @@ export default function Profile() {
 						{"내 자산"}
 					</Text>
 					<Text style={styles.text4}>
-						{"7,160,329"}
+						{user?.profile ? user.profile.totalAssets.toLocaleString() : "정보 없음"}
 					</Text>
-					<Text style={styles.text5}>
-						{"5.43%"}
+                    <Text
+                        style={[
+                            styles.text5,
+                            user?.profile?.winRate !== undefined && user.profile.winRate > 0
+                                ? { color: "#D22034" }
+                                : user?.profile?.winRate !== undefined && user.profile.winRate < 0
+                                ? { color: "#333AEC" }
+                                : { color: "#8B8B91" }
+                        ]}
+                    >
+						{user?.profile ? user.profile.winRate.toLocaleString() + "%" : "정보 없음"}
 					</Text>
 				</View>
 				<View style={styles.column2}>
@@ -49,19 +67,19 @@ export default function Profile() {
 							</Text>
 						</View>
 						<Image
-							source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/ecak547s_expires_30_days.png"}} 
+							source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/nwljtit8_expires_30_days.png"}} 
 							resizeMode = {"stretch"}
 							style={styles.image3}
 						/>
 						<View style={styles.view}>
 							<View style={styles.column4}>
 								<Image
-									source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/6lnnb67n_expires_30_days.png"}} 
+									source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/idg305e7_expires_30_days.png"}} 
 									resizeMode = {"stretch"}
 									style={styles.image4}
 								/>
 								<Image
-									source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/1k6sp0pd_expires_30_days.png"}} 
+									source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/4y4gxloq_expires_30_days.png"}} 
 									resizeMode = {"stretch"}
 									style={styles.image5}
 								/>
@@ -89,7 +107,7 @@ export default function Profile() {
 							{"포트폴리오"}
 						</Text>
 						<Image
-							source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/jnxqu42p_expires_30_days.png"}} 
+							source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/2gc5mwuz_expires_30_days.png"}} 
 							resizeMode = {"stretch"}
 							style={styles.image2}
 						/>
@@ -99,7 +117,7 @@ export default function Profile() {
 							{"캘린더"}
 						</Text>
 						<Image
-							source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/vapa58tw_expires_30_days.png"}} 
+							source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/rhv50m1o_expires_30_days.png"}} 
 							resizeMode = {"stretch"}
 							style={styles.image2}
 						/>
@@ -109,7 +127,7 @@ export default function Profile() {
 							{"알림 설정"}
 						</Text>
 						<Image
-							source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/h4654680_expires_30_days.png"}} 
+							source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/hfsjezvt_expires_30_days.png"}} 
 							resizeMode = {"stretch"}
 							style={styles.image2}
 						/>
@@ -119,7 +137,7 @@ export default function Profile() {
 							{"친구 초대"}
 						</Text>
 						<Image
-							source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/2iqqphw7_expires_30_days.png"}} 
+							source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/462mfw3r_expires_30_days.png"}} 
 							resizeMode = {"stretch"}
 							style={styles.image2}
 						/>
@@ -129,23 +147,12 @@ export default function Profile() {
 							{"언어"}
 						</Text>
 						<Image
-							source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/77yd3c8b_expires_30_days.png"}} 
+							source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/oei4abfw_expires_30_days.png"}} 
 							resizeMode = {"stretch"}
 							style={styles.image2}
 						/>
 					</View>
 				</View>
-				<TouchableOpacity
-								onPress={() => route.push("../login")}
-								style={{
-									marginTop: 20,
-									padding: 10,
-									backgroundColor: "#007BFF",
-									borderRadius: 5,
-								}}
-							>
-								<Text style={{ color: "#FFFFFF" }}>Go to Login Page</Text>
-							</TouchableOpacity>
 			</ScrollView>
 		</SafeAreaView>
 	)
@@ -287,7 +294,7 @@ const styles = StyleSheet.create({
 		color: "#D21F34",
 		fontSize: 14,
 		fontWeight: "bold",
-		marginLeft: 40,
+		marginLeft: 30,
 	},
 	text6: {
 		color: "#8B8B91",

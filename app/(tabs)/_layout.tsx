@@ -1,7 +1,10 @@
 import { Image } from 'expo-image';
 import { Tabs } from "expo-router";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function TabLayout() {
+    const insets = useSafeAreaInsets();
+    
     return (
         <Tabs
         screenOptions={{
@@ -10,10 +13,10 @@ export default function TabLayout() {
             tabBarInactiveTintColor: '#454547',
             tabBarStyle: {
                 backgroundColor: '#121212',
-                borderTopWidth: 1,
+                borderTopWidth: 0,
                 borderTopColor: '#E5E5EA',
-                height: 60,
-                paddingBottom: 10,
+                height:  45+insets.bottom,
+                paddingBottom: insets.bottom,
                 paddingTop: 10,
             },
         }}
@@ -89,7 +92,7 @@ export default function TabLayout() {
             }} 
             />
             <Tabs.Screen 
-            name="profile" 
+            name="mypage" 
             options={{ 
                 tabBarLabel: "마이", 
                 tabBarIcon: ({ focused }) => (
