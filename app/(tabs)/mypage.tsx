@@ -10,7 +10,7 @@ export default function MyPage() {
     const result = await logout();
     if (result.success) {
       console.log('로그아웃 완료');
-      router.replace('../login');
+      router.replace('../(auth)/login');
     }
   };
 

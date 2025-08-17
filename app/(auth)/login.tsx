@@ -1,6 +1,6 @@
 import { useAuth } from "@/contexts/authContext";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   Image,
@@ -16,11 +16,28 @@ import {
 interface LoginProps {}
 
 const Login: React.FC<LoginProps> = (props) => {
-    const { login } = useAuth();
+    const { login, user, isLoading } = useAuth();
     const route = useRouter();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+    const [loginLoading, setLoginLoading] = useState(false);
+
+    // 이미 로그인된 사용자는 메인으로 리다이렉트
+    useEffect(() => {
+      if (!isLoading && user) {
+        console.log('User already logged in, redirecting...');
+        route.replace("/(tabs)");
+      }
+    }, [user, isLoading]);
+
+    // Firebase Auth가 로딩 중일 때
+    if (isLoading) {
+      return (
+        <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+          <Text style={{ color: '#FFFFFF' }}>로딩 중...</Text>
+        </SafeAreaView>
+      );
+    }
 
     const handleLogin = async () => {
       if (!email || !password) {
@@ -28,21 +45,24 @@ const Login: React.FC<LoginProps> = (props) => {
         return;
       }
 
-      setIsLoading(true);
+      setLoginLoading(true);
       try {
         const response = await login(email, password);
         if (response?.success) {
-          Alert.alert("성공", "로그인되었습니다!", [
-            { text: "확인", onPress: () => route.back() }
-          ]);
+          console.log('Login successful, Auth state will handle redirect...');
+          // 로그인 성공 후 잠시 기다린 후 수동 리다이렉트
+          setTimeout(() => {
+            console.log('🔄 Performing manual redirect to tabs...');
+            route.replace("../(tabs)");
+          }, 1000);
         } else {
           Alert.alert("오류", response?.msg || "로그인에 실패했습니다.");
-          route.push("./register");
         }
       } catch (error) {
+        console.error('Login error in component:', error);
         Alert.alert("오류", "로그인 중 문제가 발생했습니다.");
       } finally {
-        setIsLoading(false);
+        setLoginLoading(false);
       }
     };
 
@@ -58,7 +78,7 @@ const Login: React.FC<LoginProps> = (props) => {
         </View>
 
         <View style={styles.view2}>
-          <Text style={styles.text}>로그인</Text>
+          <Text style={styles.text}>Not Auth 로그인</Text>
         </View>
 
         <View style={styles.view3}>
@@ -85,23 +105,23 @@ const Login: React.FC<LoginProps> = (props) => {
         </View>
 
         <View style={styles.view5}>
-          <TouchableOpacity onPress={() => route.push("../(tabs)")}>
+          <TouchableOpacity onPress={() => route.push("./register")}>
             <Text style={styles.text2}>계정이 없으신가요? 회원가입</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.view6}>
           <TouchableOpacity 
-            style={[styles.button, { opacity: isLoading ? 0.6 : 1 }]} 
+            style={[styles.button, { opacity: loginLoading ? 0.6 : 1 }]} 
             onPress={handleLogin}
-            disabled={isLoading}
+            disabled={loginLoading}
           >
-            <Text style={styles.text3}>{isLoading ? "로그인 중..." : "로그인"}</Text>
+            <Text style={styles.text3}>{loginLoading ? "로그인 중..." : "로그인"}</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.view7}>
-          <TouchableOpacity style={styles.row} disabled={isLoading}>
+          <TouchableOpacity style={styles.row} disabled={loginLoading}>
             <Image
               source={{ uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/ysly0qmd_expires_30_days.png" }} 
               resizeMode="stretch"

@@ -1,48 +1,86 @@
 import { useAuth } from "@/contexts/authContext";
-import React, { useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import React, { useCallback, useRef, useState } from "react";
 import { Image, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
+import Animated, { FadeInDown } from 'react-native-reanimated';
+
 export default function Pf() {
-    const { user, logout, isLoading, refreshUserData } = useAuth();
+    const { user, isLoading, refreshUserData } = useAuth();
     const [refreshing, setRefreshing] = useState(false);
-	return (
-		<SafeAreaView style={styles.container}>
-			<ScrollView  style={styles.scrollView} refreshControl={
-                  <RefreshControl
-                        refreshing={isLoading}
-                        onRefresh={refreshUserData}
-                        tintColor="#FFFFFF" // iOS에서 새로고침 인디케이터 색상
-                        colors={["#FFFFFF"]} // Android에서 새로고침 인디케이터 색상
+    const [animationKey, setAnimationKey] = useState(0); // 애니메이션 키 상태 추가
+    const hasLoadedOnce = useRef(false);
+
+    // 탭에 포커스될 때마다 애니메이션 키 변경
+    useFocusEffect(
+        useCallback(() => {
+            console.log('📱 PF 탭 포커스 - 애니메이션 시작');
+            
+            // 애니메이션 키를 변경하여 애니메이션 재시작
+            setAnimationKey(prev => prev + 1);
+            
+            // 데이터 새로고침은 처음에만
+            if (!hasLoadedOnce.current || !user?.profile) {
+                console.log('📱 첫 로드 또는 데이터 없음, 새로고침 실행');
+                refreshUserData();
+                hasLoadedOnce.current = true;
+            }
+        }, [user?.profile])
+    );
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        console.log('🔄 Pull-to-refresh 시작');
+        await refreshUserData();
+        setRefreshing(false);
+        console.log('✅ Pull-to-refresh 완료');
+    };
+
+    return (
+        <SafeAreaView style={styles.container}>
+            <ScrollView 
+                style={styles.scrollView} 
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        tintColor="#FFFFFF"
+                        colors={["#FFFFFF"]}
                     />
-                }>
-				<View style={styles.row}>
-					<Image
-						source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/wrjtel2q_expires_30_days.png"}} 
-						resizeMode = {"stretch"}
-						style={styles.image}
-					/>
-					<View >
-						<Text style={styles.text}>
-							{user?.name ? user.name : "이름 없음"}
-						</Text>
-						<Text style={styles.text2}>
-							{user?.profile ? "Lv. "+user.profile.level : "정보 없음"}
-						</Text>
-					</View>
-					<View style={styles.box}>
-					</View>
-					<Image
-						source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/58t9wa6n_expires_30_days.png"}} 
-						resizeMode = {"stretch"}
-						style={styles.image2}
-					/>
-				</View>
-				<View style={styles.column}>
-					<Text style={styles.text3}>
-						{"내 자산"}
-					</Text>
-					<Text style={styles.text4}>
-						{user?.profile ? user.profile.totalAssets.toLocaleString() : "정보 없음"}
-					</Text>
+                }
+            >
+                {/* 첫 번째 섹션 - 애니메이션 없음 (항상 보여줌) */}
+                <View style={styles.row}>
+                    <Image
+                        source={{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/wrjtel2q_expires_30_days.png"}} 
+                        resizeMode={"stretch"}
+                        style={styles.image}
+                    />
+                    <View>
+                        <Text style={styles.text}>
+                            {user?.name ? user.name : "이름 없음"}
+                        </Text>
+                        <Text style={styles.text2}>
+                            {user?.profile ? "Lv. "+user.profile.level : "정보 없음"}
+                        </Text>
+                    </View>
+                    <View style={styles.box}></View>
+                    <Image
+                        source={{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/58t9wa6n_expires_30_days.png"}} 
+                        resizeMode={"stretch"}
+                        style={styles.image2}
+                    />
+                </View>
+                
+                {/* 두 번째 섹션 - 애니메이션 적용 */}
+                <Animated.View 
+                    key={`assets-section-${animationKey}`} // 동적 키로 변경
+                    entering={FadeInDown.duration(600).springify()} 
+                    style={styles.column}
+                >
+                    <Text style={styles.text3}>내 자산</Text>
+                    <Text style={styles.text4}>
+                        {user?.profile ? user.profile.totalAssets.toLocaleString() : "1,000,000"}
+                    </Text>
                     <Text
                         style={[
                             styles.text5,
@@ -53,110 +91,106 @@ export default function Pf() {
                                 : { color: "#8B8B91" }
                         ]}
                     >
-						{user?.profile ? user.profile.winRate.toLocaleString() + "%" : "정보 없음"}
-					</Text>
-				</View>
-				<View style={styles.column2}>
-					<View style={styles.row2}>
-						<View style={styles.column3}>
-							<Text style={styles.text6}>
-								{"Lv.4"}
-							</Text>
-							<Text style={styles.text7}>
-								{"고등어"}
-							</Text>
-						</View>
-						<Image
-							source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/nwljtit8_expires_30_days.png"}} 
-							resizeMode = {"stretch"}
-							style={styles.image3}
-						/>
-						<View style={styles.view}>
-							<View style={styles.column4}>
-								<Image
-									source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/idg305e7_expires_30_days.png"}} 
-									resizeMode = {"stretch"}
-									style={styles.image4}
-								/>
-								<Image
-									source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/4y4gxloq_expires_30_days.png"}} 
-									resizeMode = {"stretch"}
-									style={styles.image5}
-								/>
-							</View>
-						</View>
-					</View>
-					<View style={styles.row3}>
-						<Text style={styles.text8}>
-							{"옷 사기"}
-						</Text>
-						<Text style={styles.text8}>
-							{"밥 주기"}
-						</Text>
-						<Text style={styles.text8}>
-							{"물 주기"}
-						</Text>
-					</View>
-				</View>
-				<View style={styles.column5}>
-					<Text style={styles.text9}>
-						{"MY"}
-					</Text>
-					<View style={styles.row4}>
-						<Text style={styles.text10}>
-							{"포트폴리오"}
-						</Text>
-						<Image
-							source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/2gc5mwuz_expires_30_days.png"}} 
-							resizeMode = {"stretch"}
-							style={styles.image2}
-						/>
-					</View>
-					<View style={styles.row4}>
-						<Text style={styles.text10}>
-							{"캘린더"}
-						</Text>
-						<Image
-							source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/rhv50m1o_expires_30_days.png"}} 
-							resizeMode = {"stretch"}
-							style={styles.image2}
-						/>
-					</View>
-					<View style={styles.row4}>
-						<Text style={styles.text10}>
-							{"알림 설정"}
-						</Text>
-						<Image
-							source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/hfsjezvt_expires_30_days.png"}} 
-							resizeMode = {"stretch"}
-							style={styles.image2}
-						/>
-					</View>
-					<View style={styles.row4}>
-						<Text style={styles.text10}>
-							{"친구 초대"}
-						</Text>
-						<Image
-							source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/462mfw3r_expires_30_days.png"}} 
-							resizeMode = {"stretch"}
-							style={styles.image2}
-						/>
-					</View>
-					<View style={styles.row5}>
-						<Text style={styles.text10}>
-							{"언어"}
-						</Text>
-						<Image
-							source = {{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/oei4abfw_expires_30_days.png"}} 
-							resizeMode = {"stretch"}
-							style={styles.image2}
-						/>
-					</View>
-				</View>
-			</ScrollView>
-		</SafeAreaView>
-	)
-}
+                        {user?.profile?.winRate !== undefined ? user.profile.winRate.toLocaleString() + "%" : "0.00%"}
+                    </Text>
+                </Animated.View>
+
+                {/* 세 번째 섹션 - 펫 */}
+                <Animated.View 
+                    key={`pet-section-${animationKey}`} // 동적 키로 변경
+                    entering={FadeInDown.duration(600).delay(150).springify()} 
+                    style={styles.column2}
+                >
+                    <View style={styles.row2}>
+                        <View style={styles.column3}>
+                            <Text style={styles.text6}>
+                                Lv.{user?.profile?.level || 1}
+                            </Text>
+                            <Text style={styles.text7}>알짜 새우</Text>
+                        </View>
+                        <Image
+                            source={{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/nwljtit8_expires_30_days.png"}} 
+                            resizeMode={"stretch"}
+                            style={styles.image3}
+                        />
+                        <View style={styles.view}>
+                            <View style={styles.column4}>
+                                <Image
+                                    source={{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/idg305e7_expires_30_days.png"}} 
+                                    resizeMode={"stretch"}
+                                    style={styles.image4}
+                                />
+                                <Image
+                                    source={{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/4y4gxloq_expires_30_days.png"}} 
+                                    resizeMode={"stretch"}
+                                    style={styles.image5}
+                                />
+                            </View>
+                        </View>
+                    </View>
+                    <View style={styles.row3}>
+                        <Text style={styles.text8}>옷 사기</Text>
+                        <Text style={styles.text8}>밥 주기</Text>
+                        <Text style={styles.text8}>물 주기</Text>
+                    </View>
+                </Animated.View>
+
+                {/* 네 번째 섹션 - MY 메뉴 */}
+                <Animated.View 
+                    key={`menu-section-${animationKey}`} // 동적 키로 변경
+                    entering={FadeInDown.duration(600).delay(300).springify()} 
+                    style={styles.column5}
+                >
+                    <Text style={styles.text9}>MY</Text>
+                    <View style={styles.row4}>
+                        <Text style={styles.text10}>포트폴리오</Text>
+                        <Image
+                            source={{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/2gc5mwuz_expires_30_days.png"}} 
+                            resizeMode={"stretch"}
+                            style={styles.image2}
+                        />
+                    </View>
+                    <View style={styles.row4}>
+                        <Text style={styles.text10}>캘린더</Text>
+                        <Image
+                            source={{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/rhv50m1o_expires_30_days.png"}} 
+                            resizeMode={"stretch"}
+                            style={styles.image2}
+                        />
+                    </View>
+                    <View style={styles.row4}>
+                        <Text style={styles.text10}>알림 설정</Text>
+                        <Image
+                            source={{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/hfsjezvt_expires_30_days.png"}} 
+                            resizeMode={"stretch"}
+                            style={styles.image2}
+                        />
+                    </View>
+                    <View style={styles.row4}>
+                        <Text style={styles.text10}>친구 초대</Text>
+                        <Image
+                            source={{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/462mfw3r_expires_30_days.png"}} 
+                            resizeMode={"stretch"}
+                            style={styles.image2}
+                        />
+                    </View>
+                    <View style={styles.row5}>
+                        <Text style={styles.text10}>언어</Text>
+                        <Image
+                            source={{uri: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/9Y9AZXDZn3/oei4abfw_expires_30_days.png"}} 
+                            resizeMode={"stretch"}
+                            style={styles.image2}
+                        />
+                    </View>
+                </Animated.View>
+            </ScrollView>
+        </SafeAreaView>
+    );
+};
+
+
+// ...existing code... (styles는 동일)
+
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
