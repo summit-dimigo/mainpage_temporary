@@ -7,20 +7,20 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 export default function Pf() {
     const { user, isLoading, refreshUserData } = useAuth();
     const [refreshing, setRefreshing] = useState(false);
-    const [animationKey, setAnimationKey] = useState(0); // 애니메이션 키 상태 추가
+    const [animationKey, setAnimationKey] = useState(0); // 애니메이션 키 
     const hasLoadedOnce = useRef(false);
 
     // 탭에 포커스될 때마다 애니메이션 키 변경
     useFocusEffect(
         useCallback(() => {
-            console.log('📱 PF 탭 포커스 - 애니메이션 시작');
+            console.log('PF 탭 포커스 - 애니메이션 시작');
             
             // 애니메이션 키를 변경하여 애니메이션 재시작
             setAnimationKey(prev => prev + 1);
             
             // 데이터 새로고침은 처음에만
             if (!hasLoadedOnce.current || !user?.profile) {
-                console.log('📱 첫 로드 또는 데이터 없음, 새로고침 실행');
+                console.log('첫 새로고침 실행');
                 refreshUserData();
                 hasLoadedOnce.current = true;
             }
@@ -29,10 +29,10 @@ export default function Pf() {
 
     const onRefresh = async () => {
         setRefreshing(true);
-        console.log('🔄 Pull-to-refresh 시작');
+        console.log('Pull-to-refresh 시작');
         await refreshUserData();
         setRefreshing(false);
-        console.log('✅ Pull-to-refresh 완료');
+        console.log('Pull-to-refresh 완료');
     };
 
     return (
@@ -137,7 +137,7 @@ export default function Pf() {
 
                 {/* 네 번째 섹션 - MY 메뉴 */}
                 <Animated.View 
-                    key={`menu-section-${animationKey}`} // 동적 키로 변경
+                    key={`menu-section-${animationKey}`}
                     entering={FadeInDown.duration(600).delay(300).springify()} 
                     style={styles.column5}
                 >
@@ -188,8 +188,6 @@ export default function Pf() {
     );
 };
 
-
-// ...existing code... (styles는 동일)
 
 const styles = StyleSheet.create({
 	container: {

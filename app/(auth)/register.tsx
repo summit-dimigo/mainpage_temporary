@@ -12,7 +12,7 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-// TypeScript 타입 정의 추가
+
 interface RegisterProps {}
 
 const Register: React.FC<RegisterProps> = (props) => {

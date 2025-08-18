@@ -12,7 +12,7 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-// TypeScript 타입 정의 추가
+
 interface LoginProps {}
 
 const Login: React.FC<LoginProps> = (props) => {
@@ -52,7 +52,7 @@ const Login: React.FC<LoginProps> = (props) => {
           console.log('Login successful, Auth state will handle redirect...');
           // 로그인 성공 후 잠시 기다린 후 수동 리다이렉트
           setTimeout(() => {
-            console.log('🔄 Performing manual redirect to tabs...');
+            console.log('manual redirect to tabs...');
             route.replace("../(tabs)");
           }, 1000);
         } else {
@@ -78,7 +78,7 @@ const Login: React.FC<LoginProps> = (props) => {
         </View>
 
         <View style={styles.view2}>
-          <Text style={styles.text}>Not Auth 로그인</Text>
+          <Text style={styles.text}>로그인</Text>
         </View>
 
         <View style={styles.view3}>
